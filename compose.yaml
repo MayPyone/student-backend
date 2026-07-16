@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Web Application Service
+  web:
+    image: node:20-alpine # Replace with your language/app image
+    container_name: web_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000" # Maps port 3000 on your machine to port 3000 inside the container
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://user:password@db:54325/mydatabase
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev
+    depends_on:
+      - db # Ensures the database starts before the web app
+
+  # Database Service
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    restart: unless-stopped
+    ports:
+      - "54325:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persists data even if container stops
+
+volumes:
+  postgres_data: # Defines the persistent volume for the database
